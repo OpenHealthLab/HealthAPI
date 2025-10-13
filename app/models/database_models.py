@@ -11,7 +11,7 @@ class Prediction(Base):
     prediction_class = Column(String, nullable=False)
     confidence_score = Column(Float, nullable=False)
     processing_time = Column(Float)
-    metadata = Column(Text)
+    prediction_metadata = Column(Text)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     
     def __repr__(self):

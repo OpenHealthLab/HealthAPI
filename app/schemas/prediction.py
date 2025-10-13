@@ -26,5 +26,5 @@ class PredictionCreate(BaseModel):
     prediction_class: str
     confidence_score: float = Field(ge=0.0, le=1.0)
     processing_time: Optional[float] = None
-    metadata: Optional[str] = None
+    prediction_metadata: Optional[str] = None
 
