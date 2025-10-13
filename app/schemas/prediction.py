@@ -2,6 +2,12 @@ from pydantic import BaseModel, Field
 from datetime import datetime
 from typing import Optional, Dict
 
+class HealthCheck(BaseModel):
+    status: str
+    app_name: str
+    version: str
+    model_loaded: bool
+
 class PredictionResponse(BaseModel):
     id: int
     image_filename: str
