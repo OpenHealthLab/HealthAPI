@@ -1,9 +1,10 @@
 from fastapi import APIRouter
 from app.schemas.prediction import HealthCheck
 from app.core.config import get_settings
-from app.ml.inference import model_inference
+from app.ml.inference import ModelInference
 
 router = APIRouter()
+model_inference = ModelInference()
 
 @router.get("/health", response_model=HealthCheck)
 async def health_check():
