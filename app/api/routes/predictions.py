@@ -10,11 +10,12 @@ from app.core.database import get_db
 from app.core.config import get_settings
 from app.schemas.prediction import PredictionResponse, PredictionCreate
 from app.services.prediction_service import PredictionService
-from app.ml.inference import model_inference
+from app.ml.inference import ModelInference
 from app.ml.preprocessing.image_processor import ImageProcessor
 
 router = APIRouter()
 settings = get_settings()
+model_inference = ModelInference()
 image_processor = ImageProcessor()
 
 @router.post("/predict", response_model=PredictionResponse, status_code=status.HTTP_201_CREATED)
@@ -68,7 +69,7 @@ async def predict_chest_xray(
             prediction_class=pred_class,
             confidence_score=confidence,
             processing_time=proc_time,
-            metadata=json.dumps(all_probs)
+            prediction_metadata=json.dumps(all_probs)
         )
         
         db_prediction = PredictionService.create_prediction(db, prediction_data)
