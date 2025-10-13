@@ -6,9 +6,10 @@ from contextlib import asynccontextmanager
 from app.core.config import get_settings
 from app.core.database import engine, Base
 from app.api.routes import health, predictions
-from app.ml.inference import model_inference
+from app.ml.inference import ModelInference
 
 settings = get_settings()
+model_inference = ModelInference()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
