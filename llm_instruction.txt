@@ -1,0 +1,5 @@
+llm_instruction.txt
+
+
+understand code repo by understanding folder stucter using command find. ingnore folders like env, __pycache__ etc.
+

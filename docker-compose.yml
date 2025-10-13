@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  api:
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./uploads:/app/uploads
+      - ./ml_models:/app/ml_models
+      - ./.env:/app/.env
+    environment:
+      - DATABASE_URL=sqlite:///./healthcare_ai.db
+    restart: unless-stopped
