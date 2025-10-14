@@ -7,7 +7,7 @@ providing automatic validation and serialization.
 
 from pydantic import BaseModel, Field, ConfigDict
 from datetime import datetime
-from typing import Optional, Dict
+from typing import Optional, Dict, List
 
 
 class HealthCheck(BaseModel):
@@ -76,3 +76,26 @@ class PredictionCreate(BaseModel):
     confidence_score: float = Field(ge=0.0, le=1.0, description="Confidence score between 0 and 1")
     processing_time: Optional[float] = None
     prediction_metadata: Optional[str] = None
+
+
+class BatchPredictionResponse(BaseModel):
+    """
+    Schema for batch prediction response.
+    
+    Returns summary statistics and individual predictions for a batch.
+    
+    Attributes:
+        total_images: Total number of images processed
+        successful: Number of successful predictions
+        failed: Number of failed predictions
+        total_processing_time: Total time taken for all predictions
+        predictions: List of individual prediction results
+        errors: List of errors for failed predictions
+    """
+    
+    total_images: int
+    successful: int
+    failed: int
+    total_processing_time: float
+    predictions: List[PredictionResponse]
+    errors: List[Dict[str, str]] = []
