@@ -28,6 +28,7 @@ env.bak/
 venv.bak/
 *.env
 *.env.*
+!.env.example
 
 # =====================================
 # FastAPI / Uvicorn / Gunicorn
@@ -35,6 +36,7 @@ venv.bak/
 *.log
 *.pid
 *.sqlite3
+*.db
 instance/
 .uvicorn.log
 
@@ -74,6 +76,9 @@ tb_logs/
 .ropeproject
 *.sublime-project
 *.sublime-workspace
+*.swp
+*.swo
+*~
 
 # =====================================
 # OS Files
@@ -81,6 +86,7 @@ tb_logs/
 .DS_Store
 Thumbs.db
 desktop.ini
+*.bak
 
 # =====================================
 # Testing / Coverage
@@ -96,6 +102,8 @@ coverage.xml
 .cache
 .tox/
 .nox/
+test.db
+test_*.db
 
 # =====================================
 # MyPy / Linting / Type Checking
@@ -110,8 +118,7 @@ ruff_cache/
 # Docker / CI
 # =====================================
 .dockerignore
-Dockerfile
-docker-compose.yml
+docker-compose.override.yml
 *.log
 
 # =====================================
@@ -131,14 +138,35 @@ docker-compose.yml
 # .streamlit/
 # .gradio/
 
+# Aider
 .aider*
-.vscode/
-.idea/
 
+# Project specific
 uploads/
-ml_models/
+ml_models/*.pth
+ml_models/*.pt
+ml_models/*.onnx
 
-todo_prompts.md
-llm_instruction.txt
-*db
+# Keep directory structure but ignore contents
+!uploads/.gitkeep
+!ml_models/.gitkeep
 
+# Documentation builds
+docs/_build/
+docs/.doctrees/
+site/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Security
+*.pem
+*.key
+*.crt
+secrets/
+
+# Backup files
+*.backup
+*.old
