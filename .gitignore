@@ -6,6 +6,11 @@ env/
 
 todo_prompts.md
 
+uploads/
+*.log
+*.sqlite3
+*.db
+
 #ingnore __pycache__ folders and their contents
 **/__pycache__/
 **/*.pyc
