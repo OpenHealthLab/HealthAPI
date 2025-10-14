@@ -1,36 +1,145 @@
-.aider*
+# =====================================
+# Python
+# =====================================
+__pycache__/
+*.py[cod]
+*.so
+*.pyd
+*.pyo
+*.egg
+*.egg-info/
+.eggs/
+build/
+develop-eggs/
+dist/
+pip-wheel-metadata/
+*.manifest
+*.spec
 
+# =====================================
+# Environments
+# =====================================
+.env
+.venv
 env/
+venv/
+ENV/
+env.bak/
+venv.bak/
 *.env
-*.local
+*.env.*
 
-todo_prompts.md
+# =====================================
+# FastAPI / Uvicorn / Gunicorn
+# =====================================
+*.log
+*.pid
+*.sqlite3
+instance/
+.uvicorn.log
+
+# =====================================
+# Machine Learning / Data Science
+# =====================================
+# Jupyter notebooks checkpoints
+.ipynb_checkpoints/
+
+# Data and models
+data/
+datasets/
+*.csv
+*.tsv
+*.json
+*.parquet
+*.h5
+*.pkl
+*.joblib
+*.npy
+*.npz
+models/
+checkpoints/
+runs/
+experiments/
+
+# TensorBoard
+logs/
+tb_logs/
+
+# =====================================
+# IDEs / Editors
+# =====================================
+.vscode/
+.idea/
+.spyderproject
+.spyproject
+.ropeproject
+*.sublime-project
+*.sublime-workspace
+
+# =====================================
+# OS Files
+# =====================================
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# =====================================
+# Testing / Coverage
+# =====================================
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.cache
+.tox/
+.nox/
+
+# =====================================
+# MyPy / Linting / Type Checking
+# =====================================
+.mypy_cache/
+.dmypy.json
+.pyre/
+.pytype/
+ruff_cache/
+
+# =====================================
+# Docker / CI
+# =====================================
+.dockerignore
+Dockerfile
+docker-compose.yml
+*.log
+
+# =====================================
+# Miscellaneous
+# =====================================
+# VS Code launch configs, etc.
+*.code-workspace
+
+# =====================================
+# Optional: project-specific exclusions
+# =====================================
+# Uncomment if using MLflow or wandb
+# mlruns/
+# wandb/
+
+# Uncomment if using Streamlit or Gradio
+# .streamlit/
+# .gradio/
+
+.aider*
+.vscode/
+.idea/
 
 uploads/
-*.log
-*.sqlite3
-*.db
+ml_models/
 
-#ingnore __pycache__ folders and their contents
-**/__pycache__/
-**/*.pyc
-**/*.pyo
-**/*.pyd
+todo_prompts.md
+llm_instruction.txt
+*db
 
-ml_models/*.pth
-ml_models/*.pkl
-ml_models/*.h5
-ml_models/*.ckpt
-ml_models/*.pt
-ml_models/*.bin
-ml_models/*.model
-ml_models/*.onnx
-ml_models/*.tflite
-ml_models/*.pb
-ml_models/*.save
-ml_models/*.joblib
-ml_models/*.save
-ml_models/*.zip
-ml_models/*.tar.gz
-ml_models/*.tar
-ml_models/*.gz      
