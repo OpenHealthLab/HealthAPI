@@ -56,7 +56,6 @@ datasets/
 *.joblib
 *.npy
 *.npz
-models/
 checkpoints/
 runs/
 experiments/
