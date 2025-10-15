@@ -1,6 +1,22 @@
 # Healthcare AI Backend
 
+[![CI/CD](https://github.com/OpenHealthLab/HealthAPI/workflows/CI/badge.svg)](https://github.com/OpenHealthLab/HealthAPI/actions)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
+
 REST API backend for healthcare AI models, starting with chest X-ray image analysis.
+
+> ⚠️ **Medical Disclaimer**: This software is for research and educational purposes only. It is **NOT** intended for clinical use or medical diagnosis without proper validation and regulatory approval.
+
+## 🌟 Quick Links
+
+- [Features](#features)
+- [Quick Start](#quick-start)
+- [API Documentation](#api-documentation)
+- [Contributing](#contributing)
+- [Documentation](#documentation)
 
 ## Features
 
