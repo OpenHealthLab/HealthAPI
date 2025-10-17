@@ -21,6 +21,8 @@ REST API backend for healthcare AI models, starting with chest X-ray image analy
 ## Features
 
 - 🏥 Chest X-ray classification (Normal, Pneumonia, COVID-19)
+- 🔬 **NEW: DICOM file support** with HIPAA-compliant metadata extraction
+- 🎯 **NEW: CADe (Computer-Aided Detection)** for 5 common findings
 - 🚀 FastAPI with async support
 - 🧠 PyTorch deep learning models
 - 💾 SQLAlchemy ORM with SQLite database
@@ -386,7 +388,8 @@ For detailed architecture documentation, see [docs/ARCHITECTURE.md](docs/ARCHITE
 - [ ] Audit logging
 - [ ] Monitoring and metrics (Prometheus)
 - [ ] Multi-model support
-- [ ] DICOM image support
+- [x] **DICOM image support** ✅
+- [x] **CADe for common chest X-ray findings** ✅
 
 ## Performance
 

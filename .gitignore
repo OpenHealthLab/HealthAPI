@@ -170,3 +170,4 @@ secrets/
 # Backup files
 *.backup
 *.old
+action_plan.md

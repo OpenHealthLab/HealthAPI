@@ -56,6 +56,7 @@ class Settings(BaseSettings):
         """Pydantic configuration."""
         env_file = ".env"
         case_sensitive = False
+        extra = "ignore"  # Ignore extra fields in .env file
 
 
 @lru_cache()
