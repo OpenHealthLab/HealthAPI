@@ -11,11 +11,21 @@ from contextlib import asynccontextmanager
 
 from app.core.config import get_settings
 from app.core.database import engine, Base
+from app.core.logging_config import LoggerSetup, get_logger
 from app.api.routes import health, predictions, cade
 from app.ml.inference import ModelInference
 from app.ml.detection_inference import DetectionInference
 
 settings = get_settings()
+
+# Initialize logging system
+LoggerSetup.setup_logging(
+    log_level=settings.log_level,
+    log_file=settings.log_file,
+    log_dir="logs"
+)
+logger = get_logger(__name__)
+
 model_inference = ModelInference()
 detection_inference = DetectionInference()
 
@@ -42,40 +52,44 @@ async def lifespan(app: FastAPI):
         None: Control back to FastAPI during application runtime
     """
     # Startup
-    print("=" * 60)
-    print("🏥 Starting Healthcare AI Backend...")
-    print("=" * 60)
+    logger.info("=" * 60)
+    logger.info("🏥 Starting Healthcare AI Backend...")
+    logger.info("=" * 60)
     
     # Create database tables
-    Base.metadata.create_all(bind=engine)
-    print("✓ Database tables created")
+    try:
+        Base.metadata.create_all(bind=engine)
+        logger.info("✓ Database tables created successfully")
+    except Exception as e:
+        logger.error(f"Failed to create database tables: {e}", exc_info=True)
+        raise
     
     # Load ML models
     try:
         model_inference.load_model()
-        print("✓ Classification model loaded successfully")
+        logger.info("✓ Classification model loaded successfully")
     except Exception as e:
-        print(f"⚠ Warning: Could not load classification model: {e}")
-        print("  The API will start but predictions may not work correctly")
+        logger.warning(f"Could not load classification model: {e}")
+        logger.warning("The API will start but predictions may not work correctly")
     
     try:
         detection_inference.load_model()
-        print("✓ Detection model loaded successfully")
+        logger.info("✓ Detection model loaded successfully")
     except Exception as e:
-        print(f"⚠ Warning: Could not load detection model: {e}")
-        print("  The API will start but CADe may use mock detections")
+        logger.warning(f"Could not load detection model: {e}")
+        logger.warning("The API will start but CADe may use mock detections")
     
-    print("=" * 60)
-    print(f"🚀 Server ready at http://{settings.host}:{settings.port}")
-    print(f"📚 API docs at http://{settings.host}:{settings.port}/docs")
-    print("=" * 60)
+    logger.info("=" * 60)
+    logger.info(f"🚀 Server ready at http://{settings.host}:{settings.port}")
+    logger.info(f"📚 API docs at http://{settings.host}:{settings.port}/docs")
+    logger.info("=" * 60)
     
     yield
     
     # Shutdown
-    print("\n" + "=" * 60)
-    print("👋 Shutting down Healthcare AI Backend...")
-    print("=" * 60)
+    logger.info("=" * 60)
+    logger.info("👋 Shutting down Healthcare AI Backend...")
+    logger.info("=" * 60)
 
 
 # Create FastAPI application
