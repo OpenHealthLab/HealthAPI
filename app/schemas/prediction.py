@@ -68,6 +68,7 @@ class PredictionCreate(BaseModel):
         confidence_score: Model confidence (must be between 0.0 and 1.0)
         processing_time: Time taken for inference
         prediction_metadata: Additional metadata as JSON string
+        dicom_metadata: DICOM metadata as JSON string (HIPAA-compliant)
     """
     
     image_filename: str
@@ -76,6 +77,7 @@ class PredictionCreate(BaseModel):
     confidence_score: float = Field(ge=0.0, le=1.0, description="Confidence score between 0 and 1")
     processing_time: Optional[float] = None
     prediction_metadata: Optional[str] = None
+    dicom_metadata: Optional[str] = None
 
 
 class BatchPredictionResponse(BaseModel):

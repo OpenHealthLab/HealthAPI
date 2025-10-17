@@ -25,13 +25,17 @@ async def predict_chest_xray(
     db: Session = Depends(get_db)
 ):
     """
-    Upload chest X-ray image and get prediction
+    Upload chest X-ray image and get prediction.
+    
+    Supports standard image formats (PNG, JPEG) and DICOM files (.dcm).
+    DICOM metadata is extracted and stored (HIPAA-compliant, no PHI).
     """
-    # Validate file type
-    if not file.content_type.startswith("image/"):
+    # Validate file type (support both images and DICOM)
+    is_dicom = file.filename.lower().endswith('.dcm') if file.filename else False
+    if not is_dicom and not file.content_type.startswith("image/"):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="File must be an image"
+            detail="File must be an image (PNG/JPEG) or DICOM (.dcm) file"
         )
     
     # Generate unique filename
@@ -59,8 +63,12 @@ async def predict_chest_xray(
             detail="Invalid image format. Please upload PNG or JPEG"
         )
     
-    # Make prediction
+    # Make prediction and extract DICOM metadata if applicable
     try:
+        # Process image with metadata extraction
+        image_tensor, dicom_metadata = image_processor.process_image_with_metadata(file_path)
+        
+        # Run inference
         pred_class, confidence, proc_time, all_probs = model_inference.predict(file_path)
         
         # Create prediction record
@@ -70,7 +78,8 @@ async def predict_chest_xray(
             prediction_class=pred_class,
             confidence_score=confidence,
             processing_time=proc_time,
-            prediction_metadata=json.dumps(all_probs)
+            prediction_metadata=json.dumps(all_probs),
+            dicom_metadata=json.dumps(dicom_metadata) if dicom_metadata else None
         )
         
         db_prediction = PredictionService.create_prediction(db, prediction_data)
@@ -210,4 +219,3 @@ async def get_all_predictions(
     """Get all predictions with pagination"""
     predictions = PredictionService.get_predictions(db, skip=skip, limit=limit)
     return predictions
-

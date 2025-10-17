@@ -11,11 +11,13 @@ from contextlib import asynccontextmanager
 
 from app.core.config import get_settings
 from app.core.database import engine, Base
-from app.api.routes import health, predictions
+from app.api.routes import health, predictions, cade
 from app.ml.inference import ModelInference
+from app.ml.detection_inference import DetectionInference
 
 settings = get_settings()
 model_inference = ModelInference()
+detection_inference = DetectionInference()
 
 
 @asynccontextmanager
@@ -48,13 +50,20 @@ async def lifespan(app: FastAPI):
     Base.metadata.create_all(bind=engine)
     print("✓ Database tables created")
     
-    # Load ML model
+    # Load ML models
     try:
         model_inference.load_model()
-        print("✓ ML model loaded successfully")
+        print("✓ Classification model loaded successfully")
     except Exception as e:
-        print(f"⚠ Warning: Could not load ML model: {e}")
+        print(f"⚠ Warning: Could not load classification model: {e}")
         print("  The API will start but predictions may not work correctly")
+    
+    try:
+        detection_inference.load_model()
+        print("✓ Detection model loaded successfully")
+    except Exception as e:
+        print(f"⚠ Warning: Could not load detection model: {e}")
+        print("  The API will start but CADe may use mock detections")
     
     print("=" * 60)
     print(f"🚀 Server ready at http://{settings.host}:{settings.port}")
@@ -100,4 +109,10 @@ app.include_router(
     predictions.router,
     prefix="/api/v1",
     tags=["Predictions"]
+)
+
+app.include_router(
+    cade.router,
+    prefix="/api/v1/cade",
+    tags=["CADe (Computer-Aided Detection)"]
 )

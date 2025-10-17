@@ -10,3 +10,4 @@ pillow
 python-multipart
 aiofiles
 numpy
+pydicom
