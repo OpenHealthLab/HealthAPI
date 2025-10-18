@@ -24,7 +24,7 @@ from datetime import datetime
 # Add parent directory to path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from app.main import app
+from app.main import app, container
 from app.core.database import Base, get_db
 
 # Test database configuration
@@ -51,6 +51,11 @@ def override_get_db():
 app.dependency_overrides[get_db] = override_get_db
 
 # Create test client
+# Note: The DI container is already initialized in app.main
+# If you need to mock ML models or services, use:
+# with container.override_providers(...):
+#     # run tests
+# Or create fixtures with container overrides
 client = TestClient(app)
 
 

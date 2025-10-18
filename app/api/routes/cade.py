@@ -7,6 +7,7 @@ including single and batch detection operations.
 
 from fastapi import APIRouter, UploadFile, File, Depends, HTTPException, status, Query
 from sqlalchemy.orm import Session
+from dependency_injector.wiring import inject, Provide
 import os
 import uuid
 from typing import List
@@ -15,6 +16,7 @@ import time
 from app.core.database import get_db
 from app.core.config import get_settings
 from app.core.logging_config import get_logger
+from app.core.container import Container
 from app.schemas.detection import (
     CADeResponse, 
     BatchCADeResponse, 
@@ -31,14 +33,17 @@ import json
 router = APIRouter()
 settings = get_settings()
 logger = get_logger(__name__)
-detection_inference = DetectionInference()
-image_processor = ImageProcessor()
 
 
 @router.post("/detect", response_model=CADeResponse, status_code=status.HTTP_201_CREATED)
+@inject
 async def detect_findings(
     file: UploadFile = File(...),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    prediction_service: PredictionService = Depends(Provide[Container.prediction_service]),
+    detection_service: DetectionService = Depends(Provide[Container.detection_service]),
+    detection_inference: DetectionInference = Depends(Provide[Container.detection_inference]),
+    image_processor: ImageProcessor = Depends(Provide[Container.image_processor])
 ):
     """
     Upload chest X-ray image and detect findings with bounding boxes.
@@ -115,7 +120,7 @@ async def detect_findings(
             dicom_metadata=json.dumps(dicom_metadata) if dicom_metadata else None
         )
         
-        db_prediction = PredictionService.create_prediction(db, prediction_data)
+        db_prediction = prediction_service.create_prediction(db, prediction_data)
         logger.debug(f"Created prediction record for CADe with ID: {db_prediction.id}")
         
         # Run detection inference
@@ -146,7 +151,7 @@ async def detect_findings(
                 detections_data.append(detection_create)
             
             # Save all detections
-            db_detections = DetectionService.create_detections_batch(db, detections_data)
+            db_detections = detection_service.create_detections_batch(db, detections_data)
             logger.info(f"Successfully saved {len(db_detections)} detections to database")
             
             # Convert to response format
@@ -179,9 +184,14 @@ async def detect_findings(
 
 
 @router.post("/detect/batch", response_model=BatchCADeResponse, status_code=status.HTTP_201_CREATED)
+@inject
 async def detect_findings_batch(
     files: List[UploadFile] = File(...),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    prediction_service: PredictionService = Depends(Provide[Container.prediction_service]),
+    detection_service: DetectionService = Depends(Provide[Container.detection_service]),
+    detection_inference: DetectionInference = Depends(Provide[Container.detection_inference]),
+    image_processor: ImageProcessor = Depends(Provide[Container.image_processor])
 ):
     """
     Upload multiple chest X-ray images and detect findings in all.
@@ -264,7 +274,7 @@ async def detect_findings_batch(
                 dicom_metadata=json.dumps(dicom_metadata) if dicom_metadata else None
             )
             
-            db_prediction = PredictionService.create_prediction(db, prediction_data)
+            db_prediction = prediction_service.create_prediction(db, prediction_data)
             
             # Run detection
             detections, processing_time = detection_inference.detect(file_path)
@@ -290,7 +300,7 @@ async def detect_findings_batch(
                     )
                     detections_data.append(detection_create)
                 
-                db_detections = DetectionService.create_detections_batch(db, detections_data)
+                db_detections = detection_service.create_detections_batch(db, detections_data)
                 detection_results = [
                     DetectionResult.from_db_model(db_det) 
                     for db_det in db_detections
@@ -333,9 +343,12 @@ async def detect_findings_batch(
 
 
 @router.get("/detections/{prediction_id}", response_model=List[DetectionResult])
+@inject
 async def get_detections_for_prediction(
     prediction_id: int,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    prediction_service: PredictionService = Depends(Provide[Container.prediction_service]),
+    detection_service: DetectionService = Depends(Provide[Container.detection_service])
 ):
     """
     Get all detections for a specific prediction.
@@ -343,11 +356,11 @@ async def get_detections_for_prediction(
     Returns all findings detected for the given prediction ID.
     """
     logger.info(f"Retrieving detections for prediction ID: {prediction_id}")
-    detections = DetectionService.get_detections_by_prediction(db, prediction_id)
+    detections = detection_service.get_detections_by_prediction(db, prediction_id)
     
     if not detections:
         # Check if prediction exists
-        prediction = PredictionService.get_prediction(db, prediction_id)
+        prediction = prediction_service.get_prediction(db, prediction_id)
         if not prediction:
             logger.warning(f"Prediction not found: {prediction_id}")
             raise HTTPException(
@@ -363,11 +376,13 @@ async def get_detections_for_prediction(
 
 
 @router.get("/detections", response_model=List[DetectionResult])
+@inject
 async def get_all_detections(
     skip: int = Query(0, ge=0),
     limit: int = Query(100, ge=1, le=500),
     finding_type: str = Query(None),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    detection_service: DetectionService = Depends(Provide[Container.detection_service])
 ):
     """
     Get all detections with optional filtering and pagination.
@@ -380,11 +395,11 @@ async def get_all_detections(
     logger.info(f"Retrieving all detections (skip={skip}, limit={limit}, finding_type={finding_type})")
     
     if finding_type:
-        detections = DetectionService.get_detections_by_finding_type(
+        detections = detection_service.get_detections_by_finding_type(
             db, finding_type, skip=skip, limit=limit
         )
     else:
-        detections = DetectionService.get_all_detections(db, skip=skip, limit=limit)
+        detections = detection_service.get_all_detections(db, skip=skip, limit=limit)
     
     logger.info(f"Retrieved {len(detections)} detections from database")
     return [DetectionResult.from_db_model(det) for det in detections]

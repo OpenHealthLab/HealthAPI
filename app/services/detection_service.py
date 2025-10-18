@@ -16,11 +16,11 @@ class DetectionService:
     Service class for detection-related database operations.
     
     Provides methods to create and retrieve detection records,
-    encapsulating database interaction logic.
+    encapsulating database interaction logic. Uses dependency injection
+    for better testability and separation of concerns.
     """
     
-    @staticmethod
-    def create_detection(db: Session, detection_data: DetectionCreate) -> Detection:
+    def create_detection(self, db: Session, detection_data: DetectionCreate) -> Detection:
         """
         Create a single detection record in the database.
         
@@ -59,8 +59,8 @@ class DetectionService:
         
         return db_detection
     
-    @staticmethod
     def create_detections_batch(
+        self,
         db: Session, 
         detections_data: List[DetectionCreate]
     ) -> List[Detection]:
@@ -111,8 +111,8 @@ class DetectionService:
         
         return db_detections
     
-    @staticmethod
     def get_detections_by_prediction(
+        self,
         db: Session,
         prediction_id: int
     ) -> List[Detection]:
@@ -132,8 +132,8 @@ class DetectionService:
         
         return detections
     
-    @staticmethod
     def get_detection_by_id(
+        self,
         db: Session,
         detection_id: int
     ) -> Optional[Detection]:
@@ -153,8 +153,8 @@ class DetectionService:
         
         return detection
     
-    @staticmethod
     def get_all_detections(
+        self,
         db: Session,
         skip: int = 0,
         limit: int = 100
@@ -174,8 +174,8 @@ class DetectionService:
         
         return detections
     
-    @staticmethod
     def get_detections_by_finding_type(
+        self,
         db: Session,
         finding_type: str,
         skip: int = 0,
@@ -199,8 +199,7 @@ class DetectionService:
         
         return detections
     
-    @staticmethod
-    def delete_detection(db: Session, detection_id: int) -> bool:
+    def delete_detection(self, db: Session, detection_id: int) -> bool:
         """
         Delete a detection record.
         

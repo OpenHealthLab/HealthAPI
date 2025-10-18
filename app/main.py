@@ -12,9 +12,7 @@ from contextlib import asynccontextmanager
 from app.core.config import get_settings
 from app.core.database import engine, Base
 from app.core.logging_config import LoggerSetup, get_logger
-from app.api.routes import health, predictions, cade
-from app.ml.inference import ModelInference
-from app.ml.detection_inference import DetectionInference
+from app.core.container import Container
 
 settings = get_settings()
 
@@ -26,8 +24,8 @@ LoggerSetup.setup_logging(
 )
 logger = get_logger(__name__)
 
-model_inference = ModelInference()
-detection_inference = DetectionInference()
+# Initialize DI container
+container = Container()
 
 
 @asynccontextmanager
@@ -64,8 +62,9 @@ async def lifespan(app: FastAPI):
         logger.error(f"Failed to create database tables: {e}", exc_info=True)
         raise
     
-    # Load ML models
+    # Load ML models from DI container
     try:
+        model_inference = container.model_inference()
         model_inference.load_model()
         logger.info("✓ Classification model loaded successfully")
     except Exception as e:
@@ -73,6 +72,7 @@ async def lifespan(app: FastAPI):
         logger.warning("The API will start but predictions may not work correctly")
     
     try:
+        detection_inference = container.detection_inference()
         detection_inference.load_model()
         logger.info("✓ Detection model loaded successfully")
     except Exception as e:
@@ -113,6 +113,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Import routes AFTER app creation but BEFORE including them
+from app.api.routes import health, predictions, cade
+
 # Include API routers
 app.include_router(
     health.router,
@@ -130,3 +133,10 @@ app.include_router(
     prefix="/api/v1/cade",
     tags=["CADe (Computer-Aided Detection)"]
 )
+
+# Wire the container to the modules
+container.wire(modules=[
+    "app.api.routes.predictions",
+    "app.api.routes.cade",
+    "app.api.routes.health",
+])

@@ -1,6 +1,7 @@
 
 from fastapi import APIRouter, UploadFile, File, Depends, HTTPException, status
 from sqlalchemy.orm import Session
+from dependency_injector.wiring import inject, Provide
 import os
 import uuid
 from typing import List
@@ -10,6 +11,7 @@ import time
 from app.core.database import get_db
 from app.core.config import get_settings
 from app.core.logging_config import get_logger
+from app.core.container import Container
 from app.schemas.prediction import PredictionResponse, PredictionCreate, BatchPredictionResponse
 from app.services.prediction_service import PredictionService
 from app.ml.inference import ModelInference
@@ -18,13 +20,15 @@ from app.ml.preprocessing.image_processor import ImageProcessor
 router = APIRouter()
 settings = get_settings()
 logger = get_logger(__name__)
-model_inference = ModelInference()
-image_processor = ImageProcessor()
 
 @router.post("/predict", response_model=PredictionResponse, status_code=status.HTTP_201_CREATED)
+@inject
 async def predict_chest_xray(
     file: UploadFile = File(...),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    prediction_service: PredictionService = Depends(Provide[Container.prediction_service]),
+    model_inference: ModelInference = Depends(Provide[Container.model_inference]),
+    image_processor: ImageProcessor = Depends(Provide[Container.image_processor])
 ):
     """
     Upload chest X-ray image and get prediction.
@@ -100,7 +104,7 @@ async def predict_chest_xray(
             dicom_metadata=json.dumps(dicom_metadata) if dicom_metadata else None
         )
         
-        db_prediction = PredictionService.create_prediction(db, prediction_data)
+        db_prediction = prediction_service.create_prediction(db, prediction_data)
         logger.info(f"Prediction record saved to database with ID: {db_prediction.id}")
         
         return db_prediction
@@ -117,9 +121,13 @@ async def predict_chest_xray(
         )
 
 @router.post("/predict/batch", response_model=BatchPredictionResponse, status_code=status.HTTP_201_CREATED)
+@inject
 async def predict_chest_xray_batch(
     files: List[UploadFile] = File(...),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    prediction_service: PredictionService = Depends(Provide[Container.prediction_service]),
+    model_inference: ModelInference = Depends(Provide[Container.model_inference]),
+    image_processor: ImageProcessor = Depends(Provide[Container.image_processor])
 ):
     """
     Upload multiple chest X-ray images and get predictions for all
@@ -220,7 +228,7 @@ async def predict_chest_xray_batch(
     if predictions_data:
         try:
             logger.info(f"Saving {len(predictions_data)} predictions to database...")
-            db_predictions = PredictionService.create_predictions_batch(db, predictions_data)
+            db_predictions = prediction_service.create_predictions_batch(db, predictions_data)
             successful_predictions = db_predictions
             logger.info(f"Successfully saved {len(db_predictions)} predictions to database")
         except Exception as e:
@@ -248,13 +256,15 @@ async def predict_chest_xray_batch(
     )
 
 @router.get("/predictions", response_model=List[PredictionResponse])
+@inject
 async def get_all_predictions(
     skip: int = 0,
     limit: int = 100,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    prediction_service: PredictionService = Depends(Provide[Container.prediction_service])
 ):
     """Get all predictions with pagination"""
     logger.info(f"Retrieving predictions (skip={skip}, limit={limit})")
-    predictions = PredictionService.get_predictions(db, skip=skip, limit=limit)
+    predictions = prediction_service.get_predictions(db, skip=skip, limit=limit)
     logger.info(f"Retrieved {len(predictions)} predictions from database")
     return predictions
