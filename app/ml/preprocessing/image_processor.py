@@ -162,9 +162,9 @@ class ImageProcessor:
                 return hasattr(ds, 'PixelData') or 'PixelData' in ds
             else:
                 # Standard image validation
-                image = Image.open(image_path)
-                if image.format not in ['PNG', 'JPEG', 'JPG']:
-                    return False
-                return True
+                with Image.open(image_path) as image:
+                    if image.format not in ['PNG', 'JPEG', 'JPG']:
+                        return False
+                    return True
         except:
             return False

@@ -16,11 +16,11 @@ class DetectionService:
     Service class for detection-related database operations.
     
     Provides methods to create and retrieve detection records,
-    encapsulating database interaction logic.
+    encapsulating database interaction logic. Uses dependency injection
+    for better testability and separation of concerns.
     """
     
-    @staticmethod
-    def create_detection(db: Session, detection_data: DetectionCreate) -> Detection:
+    def create_detection(self, db: Session, detection_data: DetectionCreate) -> Detection:
         """
         Create a single detection record in the database.
         
@@ -42,15 +42,21 @@ class DetectionService:
         if not prediction:
             raise ValueError(f"Prediction with id {detection_data.prediction_id} not found")
         
+        # Convert normalized coordinates (0-1) to pixel values (multiply by 1000)
+        bbox_x1 = detection_data.bbox_x1 * 1000 if detection_data.bbox_x1 <= 1.0 else detection_data.bbox_x1
+        bbox_y1 = detection_data.bbox_y1 * 1000 if detection_data.bbox_y1 <= 1.0 else detection_data.bbox_y1
+        bbox_x2 = detection_data.bbox_x2 * 1000 if detection_data.bbox_x2 <= 1.0 else detection_data.bbox_x2
+        bbox_y2 = detection_data.bbox_y2 * 1000 if detection_data.bbox_y2 <= 1.0 else detection_data.bbox_y2
+        
         # Create detection record
         db_detection = Detection(
             prediction_id=detection_data.prediction_id,
             finding_type=detection_data.finding_type,
             confidence_score=detection_data.confidence_score,
-            bbox_x1=detection_data.bbox_x1,
-            bbox_y1=detection_data.bbox_y1,
-            bbox_x2=detection_data.bbox_x2,
-            bbox_y2=detection_data.bbox_y2
+            bbox_x1=bbox_x1,
+            bbox_y1=bbox_y1,
+            bbox_x2=bbox_x2,
+            bbox_y2=bbox_y2
         )
         
         db.add(db_detection)
@@ -59,8 +65,8 @@ class DetectionService:
         
         return db_detection
     
-    @staticmethod
     def create_detections_batch(
+        self,
         db: Session, 
         detections_data: List[DetectionCreate]
     ) -> List[Detection]:
@@ -88,15 +94,21 @@ class DetectionService:
             if not prediction:
                 raise ValueError(f"Prediction with id {detection_data.prediction_id} not found")
             
+            # Convert normalized coordinates (0-1) to pixel values (multiply by 1000)
+            bbox_x1 = detection_data.bbox_x1 * 1000 if detection_data.bbox_x1 <= 1.0 else detection_data.bbox_x1
+            bbox_y1 = detection_data.bbox_y1 * 1000 if detection_data.bbox_y1 <= 1.0 else detection_data.bbox_y1
+            bbox_x2 = detection_data.bbox_x2 * 1000 if detection_data.bbox_x2 <= 1.0 else detection_data.bbox_x2
+            bbox_y2 = detection_data.bbox_y2 * 1000 if detection_data.bbox_y2 <= 1.0 else detection_data.bbox_y2
+            
             # Create detection record
             db_detection = Detection(
                 prediction_id=detection_data.prediction_id,
                 finding_type=detection_data.finding_type,
                 confidence_score=detection_data.confidence_score,
-                bbox_x1=detection_data.bbox_x1,
-                bbox_y1=detection_data.bbox_y1,
-                bbox_x2=detection_data.bbox_x2,
-                bbox_y2=detection_data.bbox_y2
+                bbox_x1=bbox_x1,
+                bbox_y1=bbox_y1,
+                bbox_x2=bbox_x2,
+                bbox_y2=bbox_y2
             )
             
             db_detections.append(db_detection)
@@ -111,8 +123,8 @@ class DetectionService:
         
         return db_detections
     
-    @staticmethod
     def get_detections_by_prediction(
+        self,
         db: Session,
         prediction_id: int
     ) -> List[Detection]:
@@ -132,8 +144,8 @@ class DetectionService:
         
         return detections
     
-    @staticmethod
     def get_detection_by_id(
+        self,
         db: Session,
         detection_id: int
     ) -> Optional[Detection]:
@@ -153,8 +165,8 @@ class DetectionService:
         
         return detection
     
-    @staticmethod
     def get_all_detections(
+        self,
         db: Session,
         skip: int = 0,
         limit: int = 100
@@ -174,8 +186,8 @@ class DetectionService:
         
         return detections
     
-    @staticmethod
     def get_detections_by_finding_type(
+        self,
         db: Session,
         finding_type: str,
         skip: int = 0,
@@ -199,8 +211,7 @@ class DetectionService:
         
         return detections
     
-    @staticmethod
-    def delete_detection(db: Session, detection_id: int) -> bool:
+    def delete_detection(self, db: Session, detection_id: int) -> bool:
         """
         Delete a detection record.
         

@@ -12,6 +12,9 @@ from typing import Tuple, Dict, Optional
 from app.ml.models.chest_xray_model import ChestXRayModel
 from app.ml.preprocessing.image_processor import ImageProcessor
 from app.core.config import get_settings
+from app.core.logging_config import get_logger
+
+logger = get_logger(__name__)
 
 
 class ModelInference:
@@ -44,7 +47,7 @@ class ModelInference:
         self.classes = ["Normal", "Pneumonia", "COVID-19"]
         self.model_loaded = False
         
-        print(f"Inference device: {self.device}")
+        logger.info(f"Initializing ModelInference on device: {self.device}")
         
     def load_model(self) -> None:
         """
@@ -62,28 +65,33 @@ class ModelInference:
             before starting the application.
         """
         try:
+            logger.info("Loading classification model...")
+            
             # Initialize model architecture
             self.model = ChestXRayModel(num_classes=len(self.classes))
+            logger.debug(f"Initialized model architecture with {len(self.classes)} classes")
             
             # Load trained weights if available
             if os.path.exists(self.settings.model_path):
+                logger.info(f"Loading model weights from: {self.settings.model_path}")
                 self.model.load_state_dict(torch.load(
                     self.settings.model_path,
                     map_location=self.device
                 ))
-                print(f"✓ Model loaded from {self.settings.model_path}")
+                logger.info(f"✓ Model loaded successfully from {self.settings.model_path}")
             else:
-                print(f"⚠ Warning: Model file not found at {self.settings.model_path}")
-                print("  Using untrained model for demonstration purposes")
-                print("  Please train a model and save it to the specified path")
+                logger.warning(f"Model file not found at {self.settings.model_path}")
+                logger.warning("Using untrained model for demonstration purposes")
+                logger.warning("Please train a model and save it to the specified path")
             
             # Move model to device and set to evaluation mode
             self.model.to(self.device)
             self.model.eval()
             self.model_loaded = True
+            logger.info(f"Model ready for inference on {self.device}")
             
         except Exception as e:
-            print(f"✗ Error loading model: {str(e)}")
+            logger.error(f"Error loading classification model: {str(e)}", exc_info=True)
             self.model_loaded = False
             raise
     
@@ -116,19 +124,23 @@ class ModelInference:
             >>> print(f"All probabilities: {probs}")
         """
         if not self.model_loaded:
-            print("Model not loaded, attempting to load...")
+            logger.warning("Model not loaded, attempting to load...")
             self.load_model()
         
         if self.model is None:
+            logger.error("Model failed to load")
             raise RuntimeError("Model failed to load")
         
+        logger.debug(f"Starting inference for image: {image_path}")
         start_time = time.time()
         
         # Preprocess image
+        logger.debug("Preprocessing image...")
         image_tensor = self.processor.process_image(image_path)
         image_tensor = image_tensor.to(self.device)
         
         # Run inference
+        logger.debug("Running model inference...")
         with torch.no_grad():
             outputs = self.model(image_tensor)
             probabilities = torch.nn.functional.softmax(outputs, dim=1)
@@ -145,5 +157,7 @@ class ModelInference:
             self.classes[i]: float(probabilities[0][i])
             for i in range(len(self.classes))
         }
+        
+        logger.debug(f"Inference completed: {predicted_class} ({confidence_score:.4f}) in {processing_time:.3f}s")
         
         return predicted_class, confidence_score, processing_time, all_probs

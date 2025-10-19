@@ -12,6 +12,9 @@ from typing import List, Dict, Tuple, Optional
 from app.ml.models.chest_xray_detector import ChestXRayDetector
 from app.ml.preprocessing.image_processor import ImageProcessor
 from app.core.config import get_settings
+from app.core.logging_config import get_logger
+
+logger = get_logger(__name__)
 
 
 class DetectionInference:
@@ -53,7 +56,8 @@ class DetectionInference:
         self.model_loaded = False
         self.use_mock_detections = True  # Default to mock for demo
         
-        print(f"Detection device: {self.device}")
+        logger.info(f"Initializing DetectionInference on device: {self.device}")
+        logger.debug(f"Confidence threshold: {confidence_threshold}")
     
     def load_model(self, model_path: Optional[str] = None) -> None:
         """
@@ -69,11 +73,14 @@ class DetectionInference:
             Exception: If there's an error loading the model
         """
         try:
+            logger.info("Loading detection model...")
+            
             # Initialize model architecture
             self.model = ChestXRayDetector(
                 num_classes=len(self.finding_types),
                 confidence_threshold=self.confidence_threshold
             )
+            logger.debug(f"Initialized detection model architecture with {len(self.finding_types)} finding types")
             
             # Determine model path
             if model_path is None:
@@ -87,22 +94,24 @@ class DetectionInference:
             
             # Load trained weights if available
             if os.path.exists(detection_model_path):
+                logger.info(f"Loading detection model weights from: {detection_model_path}")
                 self.model.load_weights(detection_model_path)
                 self.use_mock_detections = False
-                print(f"✓ Detection model loaded from {detection_model_path}")
+                logger.info(f"✓ Detection model loaded successfully from {detection_model_path}")
             else:
-                print(f"⚠ Warning: Detection model not found at {detection_model_path}")
-                print("  Using mock detections for demonstration purposes")
-                print("  Train and save a detection model to enable real detections")
+                logger.warning(f"Detection model not found at {detection_model_path}")
+                logger.warning("Using mock detections for demonstration purposes")
+                logger.warning("Train and save a detection model to enable real detections")
                 self.use_mock_detections = True
             
             # Move model to device and set to evaluation mode
             self.model.to(self.device)
             self.model.eval()
             self.model_loaded = True
+            logger.info(f"Detection model ready for inference on {self.device}")
             
         except Exception as e:
-            print(f"✗ Error loading detection model: {str(e)}")
+            logger.error(f"Error loading detection model: {str(e)}", exc_info=True)
             self.model_loaded = False
             raise
     
@@ -139,25 +148,31 @@ class DetectionInference:
             >>>     print(f"    BBox: {det['bbox']}")
         """
         if not self.model_loaded:
-            print("Detection model not loaded, attempting to load...")
+            logger.warning("Detection model not loaded, attempting to load...")
             self.load_model()
         
         if self.model is None:
+            logger.error("Detection model failed to load")
             raise RuntimeError("Detection model failed to load")
         
+        logger.debug(f"Starting detection for image: {image_path}")
         start_time = time.time()
         
         # Preprocess image
+        logger.debug("Preprocessing image for detection...")
         image_tensor = self.processor.process_image(image_path)
         image_tensor = image_tensor.to(self.device)
         
         # Run detection
+        logger.debug(f"Running detection inference (mock={self.use_mock_detections})...")
         detections = self.model.detect(
             image_tensor, 
             return_mock=self.use_mock_detections
         )
         
         processing_time = time.time() - start_time
+        
+        logger.debug(f"Detection completed: Found {len(detections)} findings in {processing_time:.3f}s")
         
         return detections, processing_time
     
@@ -180,24 +195,28 @@ class DetectionInference:
             RuntimeError: If model is not loaded
         """
         if not self.model_loaded:
-            print("Detection model not loaded, attempting to load...")
+            logger.warning("Detection model not loaded, attempting to load...")
             self.load_model()
         
         if self.model is None:
+            logger.error("Detection model failed to load")
             raise RuntimeError("Detection model failed to load")
         
+        logger.info(f"Starting batch detection for {len(image_paths)} images")
         start_time = time.time()
         batch_detections = []
         
-        for image_path in image_paths:
+        for idx, image_path in enumerate(image_paths):
             try:
+                logger.debug(f"Processing batch image {idx + 1}/{len(image_paths)}")
                 detections, _ = self.detect(image_path)
                 batch_detections.append(detections)
             except Exception as e:
-                print(f"Error processing {image_path}: {str(e)}")
+                logger.error(f"Error processing {image_path}: {str(e)}")
                 batch_detections.append([])
         
         total_processing_time = time.time() - start_time
+        logger.info(f"Batch detection completed in {total_processing_time:.3f}s")
         
         return batch_detections, total_processing_time
     
@@ -209,8 +228,10 @@ class DetectionInference:
             threshold: New confidence threshold (0.0 to 1.0)
         """
         if not 0.0 <= threshold <= 1.0:
+            logger.error(f"Invalid confidence threshold: {threshold}")
             raise ValueError("Confidence threshold must be between 0.0 and 1.0")
         
+        logger.info(f"Updating confidence threshold from {self.confidence_threshold} to {threshold}")
         self.confidence_threshold = threshold
         if self.model is not None:
             self.model.confidence_threshold = threshold

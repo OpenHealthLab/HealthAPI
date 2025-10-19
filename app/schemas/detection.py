@@ -56,16 +56,23 @@ class DetectionResult(BaseModel):
     @classmethod
     def from_db_model(cls, db_detection):
         """Create DetectionResult from database Detection model"""
+        # Normalize coordinates from pixel values to 0-1 range
+        # Database stores pixel values (multiplied by 1000), so divide to get normalized coords
+        x1 = db_detection.bbox_x1 / 1000.0 if db_detection.bbox_x1 > 1.0 else db_detection.bbox_x1
+        y1 = db_detection.bbox_y1 / 1000.0 if db_detection.bbox_y1 > 1.0 else db_detection.bbox_y1
+        x2 = db_detection.bbox_x2 / 1000.0 if db_detection.bbox_x2 > 1.0 else db_detection.bbox_x2
+        y2 = db_detection.bbox_y2 / 1000.0 if db_detection.bbox_y2 > 1.0 else db_detection.bbox_y2
+        
         return cls(
             id=db_detection.id,
             prediction_id=db_detection.prediction_id,
             finding_type=db_detection.finding_type,
             confidence_score=db_detection.confidence_score,
             bounding_box=BoundingBox(
-                x1=db_detection.bbox_x1,
-                y1=db_detection.bbox_y1,
-                x2=db_detection.bbox_x2,
-                y2=db_detection.bbox_y2
+                x1=x1,
+                y1=y1,
+                x2=x2,
+                y2=y2
             ),
             created_at=db_detection.created_at
         )
@@ -81,19 +88,19 @@ class DetectionCreate(BaseModel):
         prediction_id: Associated prediction ID
         finding_type: Type of finding detected
         confidence_score: Detection confidence
-        bbox_x1: Top-left x coordinate (normalized)
-        bbox_y1: Top-left y coordinate (normalized)
-        bbox_x2: Bottom-right x coordinate (normalized)
-        bbox_y2: Bottom-right y coordinate (normalized)
+        bbox_x1: Top-left x coordinate (normalized 0-1 or pixel values)
+        bbox_y1: Top-left y coordinate (normalized 0-1 or pixel values)
+        bbox_x2: Bottom-right x coordinate (normalized 0-1 or pixel values)
+        bbox_y2: Bottom-right y coordinate (normalized 0-1 or pixel values)
     """
     
     prediction_id: int
     finding_type: str
     confidence_score: float = Field(ge=0.0, le=1.0)
-    bbox_x1: float = Field(ge=0.0, le=1.0)
-    bbox_y1: float = Field(ge=0.0, le=1.0)
-    bbox_x2: float = Field(ge=0.0, le=1.0)
-    bbox_y2: float = Field(ge=0.0, le=1.0)
+    bbox_x1: float
+    bbox_y1: float
+    bbox_x2: float
+    bbox_y2: float
 
 
 class CADeResponse(BaseModel):
