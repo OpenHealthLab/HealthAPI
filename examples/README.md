@@ -26,4 +26,7 @@ All examples require:
 - Python 3.7+
 - `requests` library for synchronous examples
 - `aiohttp` library for asynchronous examples
+- `dotenv` library for loading environment variables
+- `mimetypes` library for determining file types (standard library)
+- `os` (standard library)
 - `pathlib` (standard library)
