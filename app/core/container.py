@@ -16,7 +16,10 @@ from app.ml.detection_inference import DetectionInference
 from app.ml.preprocessing.image_processor import ImageProcessor
 from app.services.prediction_service import PredictionService
 from app.services.detection_service import DetectionService
-
+from app.services.auth_service import AuthService
+from app.services.user_service import UserService
+from app.services.role_service import RoleService
+from app.services.audit_service import AuditService
 
 class Container(containers.DeclarativeContainer):
     """
@@ -36,6 +39,11 @@ class Container(containers.DeclarativeContainer):
             "app.api.routes.predictions",
             "app.api.routes.cade",
             "app.api.routes.health",
+            # v2 API modules
+            "app.api.v2.auth",
+            "app.api.v2.users",
+            "app.api.v2.roles",
+            "app.api.v2.audit",
         ]
     )
     
@@ -59,6 +67,22 @@ class Container(containers.DeclarativeContainer):
     
     detection_service = providers.Factory(
         DetectionService
+    )
+    
+    auth_service = providers.Factory(
+        AuthService
+    )
+    
+    user_service = providers.Factory(
+        UserService
+    )
+    
+    role_service = providers.Factory(
+        RoleService
+    )
+    
+    audit_service = providers.Factory(
+        AuditService
     )
     
     # Logger factory

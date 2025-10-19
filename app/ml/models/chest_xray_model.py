@@ -6,7 +6,7 @@ class ChestXRayModel(nn.Module):
     def __init__(self, num_classes=3):
         super(ChestXRayModel, self).__init__()
         # Using ResNet18 as base model
-        self.model = models.resnet18(pretrained=False)
+        self.model = models.resnet18(weights=None)
         
         # Modify first conv layer to accept grayscale images
         self.model.conv1 = nn.Conv2d(1, 64, kernel_size=7, stride=2, padding=3, bias=False)
@@ -20,4 +20,3 @@ class ChestXRayModel(nn.Module):
         
     def forward(self, x):
         return self.model(x)
-

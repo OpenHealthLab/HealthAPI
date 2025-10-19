@@ -12,3 +12,15 @@ aiofiles
 numpy
 pydicom
 dependency-injector
+
+# Authentication & Authorization
+casbin
+casbin-sqlalchemy-adapter
+python-jose[cryptography]
+argon2-cffi-bindings
+pyotp
+qrcode[pil]
+authlib
+slowapi
+httpx
+pwdlib[argon2]

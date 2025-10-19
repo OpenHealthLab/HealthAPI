@@ -1,0 +1,172 @@
+============================= test session starts ==============================
+platform linux -- Python 3.12.3, pytest-7.4.3, pluggy-1.6.0 -- /home/lucky/OpenHealth/HealthAPI/env/bin/python3
+cachedir: .pytest_cache
+rootdir: /home/lucky/OpenHealth/HealthAPI
+plugins: cov-4.1.0, anyio-4.11.0, asyncio-0.21.1
+asyncio: mode=Mode.STRICT
+collecting ... collected 1 item
+
+tests/test_api.py::test_predict_chest_xray_success FAILED                [100%]
+
+=================================== FAILURES ===================================
+_______________________ test_predict_chest_xray_success ________________________
+
+    def test_predict_chest_xray_success():
+        """Test successful chest X-ray prediction with valid image."""
+        img = create_test_image(format="PNG", size=(224, 224))
+    
+        response = client.post(
+            "/api/v1/predict",
+            files={"file": ("test_xray.png", img, "image/png")}
+        )
+    
+>       assert response.status_code == 201
+E       assert 500 == 201
+E        +  where 500 = <Response [500 Internal Server Error]>.status_code
+
+tests/test_api.py:150: AssertionError
+----------------------------- Captured stdout call -----------------------------
+15:11:17 - INFO - Initializing ModelInference on device: cpu
+15:11:17 - INFO - Received prediction request for file: test_xray.png
+15:11:17 - INFO - File saved successfully to: ./uploads/557b61e3-bd31-497b-92fd-b1222d997a6d.png
+15:11:17 - INFO - Processing image for prediction: 557b61e3-bd31-497b-92fd-b1222d997a6d.png
+15:11:17 - INFO - Running model inference for: 557b61e3-bd31-497b-92fd-b1222d997a6d.png
+15:11:17 - WARNING - Model not loaded, attempting to load...
+15:11:17 - INFO - Loading classification model...
+15:11:17 - WARNING - Model file not found at ./ml_models/chest_xray_model.pth
+15:11:17 - WARNING - Using untrained model for demonstration purposes
+15:11:17 - WARNING - Please train a model and save it to the specified path
+15:11:17 - INFO - Model ready for inference on cpu
+15:11:17 - INFO - Prediction completed - Class: COVID-19, Confidence: 0.3581, Time: 0.097s
+15:11:17 - ERROR - Prediction error for 557b61e3-bd31-497b-92fd-b1222d997a6d.png: Could not determine join condition between parent/child tables on relationship User.roles - there are multiple foreign key paths linking the tables.  Specify the 'foreign_keys' argument, providing a list of those columns which should be counted as containing a foreign key reference to the parent table.
+Traceback (most recent call last):
+  File "/home/lucky/OpenHealth/HealthAPI/env/lib/python3.12/site-packages/sqlalchemy/orm/relationships.py", line 2434, in _determine_joins
+    self.primaryjoin = join_condition(
+                       ^^^^^^^^^^^^^^^
+  File "/home/lucky/OpenHealth/HealthAPI/env/lib/python3.12/site-packages/sqlalchemy/sql/util.py", line 121, in join_condition
+    return Join._join_condition(
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lucky/OpenHealth/HealthAPI/env/lib/python3.12/site-packages/sqlalchemy/sql/selectable.py", line 1435, in _join_condition
+    cls._joincond_trim_constraints(
+  File "/home/lucky/OpenHealth/HealthAPI/env/lib/python3.12/site-packages/sqlalchemy/sql/selectable.py", line 1580, in _joincond_trim_constraints
+    raise exc.AmbiguousForeignKeysError(
+sqlalchemy.exc.AmbiguousForeignKeysError: Can't determine join between 'users' and 'user_roles'; tables have more than one foreign key constraint relationship between them. Please specify the 'onclause' of this join explicitly.
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/lucky/OpenHealth/HealthAPI/app/api/routes/predictions.py", line 107, in predict_chest_xray
+    db_prediction = prediction_service.create_prediction(db, prediction_data)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lucky/OpenHealth/HealthAPI/app/services/prediction_service.py", line 20, in create_prediction
+    db_prediction = Prediction(**prediction_data.model_dump())
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<string>", line 4, in __init__
+  File "/home/lucky/OpenHealth/HealthAPI/env/lib/python3.12/site-packages/sqlalchemy/orm/state.py", line 566, in _initialize_instance
+    manager.dispatch.init(self, args, kwargs)
+  File "/home/lucky/OpenHealth/HealthAPI/env/lib/python3.12/site-packages/sqlalchemy/event/attr.py", line 515, in __call__
+    fn(*args, **kw)
+  File "/home/lucky/OpenHealth/HealthAPI/env/lib/python3.12/site-packages/sqlalchemy/orm/mapper.py", line 4410, in _event_on_init
+    instrumenting_mapper._check_configure()
+  File "/home/lucky/OpenHealth/HealthAPI/env/lib/python3.12/site-packages/sqlalchemy/orm/mapper.py", line 2401, in _check_configure
+    _configure_registries({self.registry}, cascade=True)
+  File "/home/lucky/OpenHealth/HealthAPI/env/lib/python3.12/site-packages/sqlalchemy/orm/mapper.py", line 4218, in _configure_registries
+    _do_configure_registries(registries, cascade)
+  File "/home/lucky/OpenHealth/HealthAPI/env/lib/python3.12/site-packages/sqlalchemy/orm/mapper.py", line 4259, in _do_configure_registries
+    mapper._post_configure_properties()
+  File "/home/lucky/OpenHealth/HealthAPI/env/lib/python3.12/site-packages/sqlalchemy/orm/mapper.py", line 2418, in _post_configure_properties
+    prop.init()
+  File "/home/lucky/OpenHealth/HealthAPI/env/lib/python3.12/site-packages/sqlalchemy/orm/interfaces.py", line 595, in init
+    self.do_init()
+  File "/home/lucky/OpenHealth/HealthAPI/env/lib/python3.12/site-packages/sqlalchemy/orm/relationships.py", line 1657, in do_init
+    self._setup_join_conditions()
+  File "/home/lucky/OpenHealth/HealthAPI/env/lib/python3.12/site-packages/sqlalchemy/orm/relationships.py", line 1895, in _setup_join_conditions
+    self._join_condition = jc = JoinCondition(
+                                ^^^^^^^^^^^^^^
+  File "/home/lucky/OpenHealth/HealthAPI/env/lib/python3.12/site-packages/sqlalchemy/orm/relationships.py", line 2321, in __init__
+    self._determine_joins()
+  File "/home/lucky/OpenHealth/HealthAPI/env/lib/python3.12/site-packages/sqlalchemy/orm/relationships.py", line 2478, in _determine_joins
+    raise sa_exc.AmbiguousForeignKeysError(
+sqlalchemy.exc.AmbiguousForeignKeysError: Could not determine join condition between parent/child tables on relationship User.roles - there are multiple foreign key paths linking the tables.  Specify the 'foreign_keys' argument, providing a list of those columns which should be counted as containing a foreign key reference to the parent table.
+15:11:17 - INFO - HTTP Request: POST http://testserver/api/v1/predict "HTTP/1.1 500 Internal Server Error"
+------------------------------ Captured log call -------------------------------
+INFO     app.ml.inference:inference.py:50 Initializing ModelInference on device: cpu
+INFO     app.api.routes.predictions:predictions.py:39 Received prediction request for file: test_xray.png
+INFO     app.api.routes.predictions:predictions.py:63 File saved successfully to: ./uploads/557b61e3-bd31-497b-92fd-b1222d997a6d.png
+INFO     app.api.routes.predictions:predictions.py:83 Processing image for prediction: 557b61e3-bd31-497b-92fd-b1222d997a6d.png
+INFO     app.api.routes.predictions:predictions.py:91 Running model inference for: 557b61e3-bd31-497b-92fd-b1222d997a6d.png
+WARNING  app.ml.inference:inference.py:127 Model not loaded, attempting to load...
+INFO     app.ml.inference:inference.py:68 Loading classification model...
+WARNING  app.ml.inference:inference.py:83 Model file not found at ./ml_models/chest_xray_model.pth
+WARNING  app.ml.inference:inference.py:84 Using untrained model for demonstration purposes
+WARNING  app.ml.inference:inference.py:85 Please train a model and save it to the specified path
+INFO     app.ml.inference:inference.py:91 Model ready for inference on cpu
+INFO     app.api.routes.predictions:predictions.py:94 Prediction completed - Class: COVID-19, Confidence: 0.3581, Time: 0.097s
+ERROR    app.api.routes.predictions:predictions.py:113 Prediction error for 557b61e3-bd31-497b-92fd-b1222d997a6d.png: Could not determine join condition between parent/child tables on relationship User.roles - there are multiple foreign key paths linking the tables.  Specify the 'foreign_keys' argument, providing a list of those columns which should be counted as containing a foreign key reference to the parent table.
+Traceback (most recent call last):
+  File "/home/lucky/OpenHealth/HealthAPI/env/lib/python3.12/site-packages/sqlalchemy/orm/relationships.py", line 2434, in _determine_joins
+    self.primaryjoin = join_condition(
+                       ^^^^^^^^^^^^^^^
+  File "/home/lucky/OpenHealth/HealthAPI/env/lib/python3.12/site-packages/sqlalchemy/sql/util.py", line 121, in join_condition
+    return Join._join_condition(
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lucky/OpenHealth/HealthAPI/env/lib/python3.12/site-packages/sqlalchemy/sql/selectable.py", line 1435, in _join_condition
+    cls._joincond_trim_constraints(
+  File "/home/lucky/OpenHealth/HealthAPI/env/lib/python3.12/site-packages/sqlalchemy/sql/selectable.py", line 1580, in _joincond_trim_constraints
+    raise exc.AmbiguousForeignKeysError(
+sqlalchemy.exc.AmbiguousForeignKeysError: Can't determine join between 'users' and 'user_roles'; tables have more than one foreign key constraint relationship between them. Please specify the 'onclause' of this join explicitly.
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/lucky/OpenHealth/HealthAPI/app/api/routes/predictions.py", line 107, in predict_chest_xray
+    db_prediction = prediction_service.create_prediction(db, prediction_data)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lucky/OpenHealth/HealthAPI/app/services/prediction_service.py", line 20, in create_prediction
+    db_prediction = Prediction(**prediction_data.model_dump())
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<string>", line 4, in __init__
+  File "/home/lucky/OpenHealth/HealthAPI/env/lib/python3.12/site-packages/sqlalchemy/orm/state.py", line 566, in _initialize_instance
+    manager.dispatch.init(self, args, kwargs)
+  File "/home/lucky/OpenHealth/HealthAPI/env/lib/python3.12/site-packages/sqlalchemy/event/attr.py", line 515, in __call__
+    fn(*args, **kw)
+  File "/home/lucky/OpenHealth/HealthAPI/env/lib/python3.12/site-packages/sqlalchemy/orm/mapper.py", line 4410, in _event_on_init
+    instrumenting_mapper._check_configure()
+  File "/home/lucky/OpenHealth/HealthAPI/env/lib/python3.12/site-packages/sqlalchemy/orm/mapper.py", line 2401, in _check_configure
+    _configure_registries({self.registry}, cascade=True)
+  File "/home/lucky/OpenHealth/HealthAPI/env/lib/python3.12/site-packages/sqlalchemy/orm/mapper.py", line 4218, in _configure_registries
+    _do_configure_registries(registries, cascade)
+  File "/home/lucky/OpenHealth/HealthAPI/env/lib/python3.12/site-packages/sqlalchemy/orm/mapper.py", line 4259, in _do_configure_registries
+    mapper._post_configure_properties()
+  File "/home/lucky/OpenHealth/HealthAPI/env/lib/python3.12/site-packages/sqlalchemy/orm/mapper.py", line 2418, in _post_configure_properties
+    prop.init()
+  File "/home/lucky/OpenHealth/HealthAPI/env/lib/python3.12/site-packages/sqlalchemy/orm/interfaces.py", line 595, in init
+    self.do_init()
+  File "/home/lucky/OpenHealth/HealthAPI/env/lib/python3.12/site-packages/sqlalchemy/orm/relationships.py", line 1657, in do_init
+    self._setup_join_conditions()
+  File "/home/lucky/OpenHealth/HealthAPI/env/lib/python3.12/site-packages/sqlalchemy/orm/relationships.py", line 1895, in _setup_join_conditions
+    self._join_condition = jc = JoinCondition(
+                                ^^^^^^^^^^^^^^
+  File "/home/lucky/OpenHealth/HealthAPI/env/lib/python3.12/site-packages/sqlalchemy/orm/relationships.py", line 2321, in __init__
+    self._determine_joins()
+  File "/home/lucky/OpenHealth/HealthAPI/env/lib/python3.12/site-packages/sqlalchemy/orm/relationships.py", line 2478, in _determine_joins
+    raise sa_exc.AmbiguousForeignKeysError(
+sqlalchemy.exc.AmbiguousForeignKeysError: Could not determine join condition between parent/child tables on relationship User.roles - there are multiple foreign key paths linking the tables.  Specify the 'foreign_keys' argument, providing a list of those columns which should be counted as containing a foreign key reference to the parent table.
+INFO     httpx:_client.py:1013 HTTP Request: POST http://testserver/api/v1/predict "HTTP/1.1 500 Internal Server Error"
+=============================== warnings summary ===============================
+env/lib/python3.12/site-packages/passlib/utils/__init__.py:854
+  /home/lucky/OpenHealth/HealthAPI/env/lib/python3.12/site-packages/passlib/utils/__init__.py:854: DeprecationWarning: 'crypt' is deprecated and slated for removal in Python 3.13
+    from crypt import crypt as _crypt
+
+tests/test_api.py::test_predict_chest_xray_success
+  /home/lucky/OpenHealth/HealthAPI/env/lib/python3.12/site-packages/torchvision/models/_utils.py:208: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+    warnings.warn(
+
+tests/test_api.py::test_predict_chest_xray_success
+  /home/lucky/OpenHealth/HealthAPI/env/lib/python3.12/site-packages/torchvision/models/_utils.py:223: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=None`.
+    warnings.warn(msg)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/test_api.py::test_predict_chest_xray_success - assert 500 == 201
+======================== 1 failed, 3 warnings in 7.78s =========================

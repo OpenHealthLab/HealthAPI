@@ -11,7 +11,7 @@ This project exists thanks to all the people who contribute. We appreciate every
 
 ## 💻 Code Contributors
 
-This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification.
+This project follows the [all-contributors](https://ghisithub.com/all-contributors/all-contributors) specification.
 
 <!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
 <!-- prettier-ignore-start -->

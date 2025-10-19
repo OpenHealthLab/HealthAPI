@@ -6,6 +6,7 @@ which automatically loads values from environment variables and .env files.
 """
 
 from pydantic_settings import BaseSettings
+from pydantic import ConfigDict
 from functools import lru_cache
 from typing import Optional
 
@@ -47,16 +48,13 @@ class Settings(BaseSettings):
     
     # Security
     api_key: str = "your-secret-api-key"
+    secret_key: str = "super-secret-key"
     
     # Optional Settings
     log_level: str = "INFO"
     log_file: Optional[str] = None
     
-    class Config:
-        """Pydantic configuration."""
-        env_file = ".env"
-        case_sensitive = False
-        extra = "ignore"  # Ignore extra fields in .env file
+    model_config = ConfigDict(env_file=".env", case_sensitive=False, extra="ignore")
 
 
 @lru_cache()

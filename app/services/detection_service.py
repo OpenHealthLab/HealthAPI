@@ -42,15 +42,21 @@ class DetectionService:
         if not prediction:
             raise ValueError(f"Prediction with id {detection_data.prediction_id} not found")
         
+        # Convert normalized coordinates (0-1) to pixel values (multiply by 1000)
+        bbox_x1 = detection_data.bbox_x1 * 1000 if detection_data.bbox_x1 <= 1.0 else detection_data.bbox_x1
+        bbox_y1 = detection_data.bbox_y1 * 1000 if detection_data.bbox_y1 <= 1.0 else detection_data.bbox_y1
+        bbox_x2 = detection_data.bbox_x2 * 1000 if detection_data.bbox_x2 <= 1.0 else detection_data.bbox_x2
+        bbox_y2 = detection_data.bbox_y2 * 1000 if detection_data.bbox_y2 <= 1.0 else detection_data.bbox_y2
+        
         # Create detection record
         db_detection = Detection(
             prediction_id=detection_data.prediction_id,
             finding_type=detection_data.finding_type,
             confidence_score=detection_data.confidence_score,
-            bbox_x1=detection_data.bbox_x1,
-            bbox_y1=detection_data.bbox_y1,
-            bbox_x2=detection_data.bbox_x2,
-            bbox_y2=detection_data.bbox_y2
+            bbox_x1=bbox_x1,
+            bbox_y1=bbox_y1,
+            bbox_x2=bbox_x2,
+            bbox_y2=bbox_y2
         )
         
         db.add(db_detection)
@@ -88,15 +94,21 @@ class DetectionService:
             if not prediction:
                 raise ValueError(f"Prediction with id {detection_data.prediction_id} not found")
             
+            # Convert normalized coordinates (0-1) to pixel values (multiply by 1000)
+            bbox_x1 = detection_data.bbox_x1 * 1000 if detection_data.bbox_x1 <= 1.0 else detection_data.bbox_x1
+            bbox_y1 = detection_data.bbox_y1 * 1000 if detection_data.bbox_y1 <= 1.0 else detection_data.bbox_y1
+            bbox_x2 = detection_data.bbox_x2 * 1000 if detection_data.bbox_x2 <= 1.0 else detection_data.bbox_x2
+            bbox_y2 = detection_data.bbox_y2 * 1000 if detection_data.bbox_y2 <= 1.0 else detection_data.bbox_y2
+            
             # Create detection record
             db_detection = Detection(
                 prediction_id=detection_data.prediction_id,
                 finding_type=detection_data.finding_type,
                 confidence_score=detection_data.confidence_score,
-                bbox_x1=detection_data.bbox_x1,
-                bbox_y1=detection_data.bbox_y1,
-                bbox_x2=detection_data.bbox_x2,
-                bbox_y2=detection_data.bbox_y2
+                bbox_x1=bbox_x1,
+                bbox_y1=bbox_y1,
+                bbox_x2=bbox_x2,
+                bbox_y2=bbox_y2
             )
             
             db_detections.append(db_detection)

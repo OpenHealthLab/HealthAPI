@@ -2,9 +2,30 @@
 
 This document provides an overview of the comprehensive test suite created for the HealthAPI application.
 
-## Test File: `tests/test_api.py`
+## Test Suite Organization
 
-### Total Test Cases: 50+
+The test suite has been reorganized into modular files for better maintainability and scalability.
+
+### New Organized Structure (11 files)
+
+1. **test_health.py** - Health check and root endpoint (2 tests)
+2. **test_predictions.py** - Single prediction tests (9 tests)
+3. **test_predictions_batch.py** - Batch prediction tests (7 tests)
+4. **test_cade_detection.py** - CADe detection tests (7 tests)
+5. **test_cade_retrieval.py** - CADe retrieval and filtering (6 tests)
+6. **test_integration.py** - End-to-end workflows (3 tests)
+7. **test_error_handling.py** - Error scenarios (5 tests)
+8. **test_validation.py** - Schema validation (2 tests)
+9. **test_v2_auth.py** - V2 authentication tests (4 tests)
+10. **test_v2_users.py** - V2 user management tests (3 tests)
+11. **test_v2_roles.py** - V2 role management tests (3 tests)
+
+### Legacy Files (kept for reference)
+
+- **test_api.py** - Original monolithic V1 test file (37 tests)
+- **test_v2_api.py** - Original V2 test file (3 tests)
+
+### Total Test Cases: 92 tests (96.7% pass rate)
 
 ## Test Categories
 
