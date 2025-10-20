@@ -38,8 +38,8 @@ async def predict_batch_image_async(
 
         async with aiohttp.ClientSession() as session:
             async with session.post(url, headers=headers, data=form_data) as response:
-                response_json = await response.json()
                 response.raise_for_status()
+                response_json = await response.json()
                 return response_json
     except Exception as exc:
         raise exc
