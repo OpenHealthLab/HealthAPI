@@ -12,7 +12,7 @@ Please do not report security vulnerabilities through public GitHub issues, disc
 
 Instead, please report security vulnerabilities by emailing:
 
-**[INSERT SECURITY EMAIL HERE]**
+**luckyrathore03@gmail.com**
 
 Include the following information:
 - Type of vulnerability
