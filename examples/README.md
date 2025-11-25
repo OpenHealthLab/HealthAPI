@@ -18,6 +18,11 @@ Each script demonstrates different ways to interact with the HealthAPI:
 
 All examples require:
 - An API key (replace `"your-secret-api-key"` with your actual API key)
+```bash
+cp .env.example .env
+# Edit .env with your configurations, especially changing the API key
+# Replace "your-secret-api-key" with your own secret key
+```
 - The HealthAPI service running at `http://localhost:8000` (or update the `api_url` parameter)
 - Image files located in the `img/` directory
 
