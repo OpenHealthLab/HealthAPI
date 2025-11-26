@@ -18,6 +18,10 @@ Each script demonstrates different ways to interact with the HealthAPI:
 
 All examples require:
 - An API key (replace `"your-secret-api-key"` with your actual API key)
+```bash
+cp .env.example .env
+# Then edit .env with your configurations, especially changing the API_KEY
+```
 - The HealthAPI service running at `http://localhost:8000` (or update the `api_url` parameter)
 - Image files located in the `img/` directory
 
@@ -26,6 +30,7 @@ All examples require:
 - Python 3.7+
 - `requests` library for synchronous examples
 - `aiohttp` library for asynchronous examples
+- `aiofiles` library  for handling local disk files in asyncio applications
 - `dotenv` library for loading environment variables
 - `mimetypes` library for determining file types (standard library)
 - `os` (standard library)
