@@ -38,6 +38,11 @@ def test_health_check():
     assert data["status"] == "healthy"
     assert "app_name" in data
     assert "version" in data
-    assert "model_loaded" in data
-    assert isinstance(data["model_loaded"], bool)
+    assert "timestamp" in data
+    assert "uptime_seconds" in data
+    assert "dependencies" in data
+    assert "database" in data["dependencies"]
+    assert "model" in data["dependencies"]
     assert data["app_name"] == "Healthcare AI Backend"
+    assert data["dependencies"]["database"] == "OK"
+    assert data["dependencies"]["model"] == "OK"

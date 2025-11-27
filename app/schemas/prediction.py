@@ -8,6 +8,15 @@ providing automatic validation and serialization.
 from pydantic import BaseModel, Field, ConfigDict
 from datetime import datetime
 from typing import Optional, Dict, List
+from enum import Enum
+
+class DependencyStatus(Enum):
+    """
+    Enum for dependency statuses.
+    """
+    
+    OK = "OK"
+    ERROR = "ERROR"
 
 
 class HealthCheck(BaseModel):
@@ -18,13 +27,17 @@ class HealthCheck(BaseModel):
         status: Current status of the application
         app_name: Name of the application
         version: Application version
-        model_loaded: Whether the ML model is loaded
+        timestamp: Current timestamp in ISO format
+        uptime_seconds: Application uptime in seconds
+        dependencies: Status of various system dependencies (e.g., database, model) 
     """
     
     status: str
     app_name: str
     version: str
-    model_loaded: bool
+    timestamp: str
+    uptime_seconds: float
+    dependencies: Dict[str, DependencyStatus]
 
 
 class PredictionResponse(BaseModel):
