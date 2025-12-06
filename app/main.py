@@ -25,6 +25,8 @@ from app.api.dependencies import limiter
 from slowapi.errors import RateLimitExceeded
 from slowapi import _rate_limit_exceeded_handler
 
+from app.middleware.logging import LoggingMiddleware
+
 settings = get_settings()
 
 # Initialize logging system
@@ -130,6 +132,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.add_middleware(LoggingMiddleware)
 
 # Register rate limiting middleware
 app.state.limiter = limiter
