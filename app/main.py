@@ -21,7 +21,7 @@ from app.api.routes import health, predictions, cade
 from app.api.v2 import auth as auth_v2, users as users_v2, roles as roles_v2, audit as audit_v2
 
 # Rate limiting
-from app.api.dependencies import limiter
+from app.middleware.rate_limit import limiter
 from slowapi.errors import RateLimitExceeded
 from slowapi import _rate_limit_exceeded_handler
 

@@ -11,7 +11,7 @@ from sqlalchemy.orm import Session
 from app.core.database import get_db
 from app.services.auth_service import AuthService
 from app.services.audit_service import AuditService
-from app.api.dependencies import limiter
+from app.middleware.rate_limit import limiter
 from app.schemas.auth import (
     UserRegister,
     UserLogin,
@@ -44,6 +44,7 @@ def get_client_info(request: Request) -> tuple:
 
 
 @router.post("/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
+@limiter.limit("5/hour")
 async def register(
     user_data: UserRegister,
     request: Request,
@@ -196,9 +197,10 @@ async def login(
 
 
 @router.post("/login/2fa", response_model=TokenResponse)
+@limiter.limit("5/minute")
 async def login_2fa(
-    credentials: UserLogin2FA,
     request: Request,
+    credentials: UserLogin2FA,
     db: Session = Depends(get_db)
 ):
     """
